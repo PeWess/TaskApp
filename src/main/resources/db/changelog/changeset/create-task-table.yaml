@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-task-table
+      author: Sergey Kritskiy
+      changes:
+        - createTable:
+            tableName: task
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: executor
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: own_by
+                  type: varchar(100)
+                  constraints:
+                    nullable: false

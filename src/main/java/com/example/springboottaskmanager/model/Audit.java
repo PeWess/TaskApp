@@ -5,6 +5,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+/**
+ * Модель данных аудита.
+ * {@param operation} - метод запроса.
+ * {@param status} - HTTP статус.
+ * {@param error_message} - собщение об ошибках, если они были вызваны.
+ */
 @Entity
 @Table(name = "audit")
 @Data
@@ -19,17 +25,14 @@ public class Audit {
     /*@Nullable
     private String requestBody;*/
 
-    //Запись с методом запроса
     @NotNull
     @Column(name = "operation")
     private String operation;
 
-    //HTTP статус ответа
     @NotNull
     @Column(name = "status")
     private String status;
 
-    //Сообщение об ошибке, если она есть
     @Nullable
     @Column(name = "error_message")
     private String errorMessage;

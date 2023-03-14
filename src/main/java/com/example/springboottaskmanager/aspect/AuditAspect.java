@@ -5,10 +5,10 @@ import com.example.springboottaskmanager.exception.Body.UnknownException;
 import com.example.springboottaskmanager.model.Audit;
 import com.example.springboottaskmanager.repository.AuditRepo;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,45 +17,56 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.lang.reflect.Method;
-//import java.lang.reflect.Parameter;
 
+
+/**
+ * Класс, заполняющий и добавляющий апись для аудита.
+ */
 @Component
+@RequiredArgsConstructor
 @Aspect
 public class AuditAspect {
-    @Autowired
-    AuditRepo auditRepo;
+    final private AuditRepo auditRepo;
 
+    /**
+     * Прослушиваем все методы, помеченные анотацией {@link Auditable}.
+     */
     @Pointcut("@annotation(Auditable)")
     public void auditableMethods() {
     }
 
-    //Метод, создающий запись в таблице Audit после каждого вызова метода. Записывает тип метода через вызов getRequestType,
-    //затем, если вызов метода возвращает исключение, записывает соответствующий HTTP статус и сообщение оишбки и сохраняет запись в Audit.
-    //Если исключений не было, записывает статус 200 и сохраняет запись в Audit
+    /**
+     * Метод создает новую запись для аудита, записывает в нее тип запроса через метод {@link #GetRequestType(ProceedingJoinPoint) GetRequestType},
+     * затем вызывает оборачиваемый метод, и, если ловит исключение, записывает код и тело ошибки и сохраняет запись в таблицу, иначе оставляет поле с телом ошибки пустым,
+     * а в таблицу добавляет запись со статусом 200(ОК).
+     * @param jp - {@link ProceedingJoinPoint}, точка в программе, где применяется совет.
+     * @return - Вызов оборачиваемого метода.
+     * @throws - Любые возникающие в в момент вызова оборачиваемого метода ошибки.
+     */
     @Around("auditableMethods()")
     public Object CreateAudit(ProceedingJoinPoint jp) throws Throwable{
         Audit audit = new Audit();
         audit.setOperation(GetRequestType(jp));
         try {
             return jp.proceed();
-        } catch (NotFoundException nfe) {
+        } catch (NotFoundException notFoundException) {
             audit.setStatus(HttpStatus.NOT_FOUND.getReasonPhrase());
-            audit.setErrorMessage(nfe.getMessage());
-            throw nfe;
-        } catch (ConstraintViolationException cve) {
+            audit.setErrorMessage(notFoundException.getMessage());
+            throw notFoundException;
+        } catch (ConstraintViolationException constraintViolationException) {
             audit.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            audit.setErrorMessage(cve.getMessage());
-            throw cve;
-        }catch (MethodArgumentNotValidException manve) {
+            audit.setErrorMessage(constraintViolationException.getMessage());
+            throw constraintViolationException;
+        }catch (MethodArgumentNotValidException methodArgumentNotValidException) {
             audit.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            audit.setErrorMessage(manve.getMessage());
-            throw manve;
+            audit.setErrorMessage(methodArgumentNotValidException.getMessage());
+            throw methodArgumentNotValidException;
         }
         catch (Exception e) {
             audit.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-            UnknownException ue = new UnknownException(e.getMessage());
-            audit.setErrorMessage(ue.getMessage());
-            throw ue;
+            UnknownException unknownException = new UnknownException(e.getMessage());
+            audit.setErrorMessage(unknownException.getMessage());
+            throw unknownException;
         } finally {
             if(audit.getStatus() == null)
                 audit.setStatus(HttpStatus.OK.getReasonPhrase());
@@ -63,6 +74,11 @@ public class AuditAspect {
         }
     }
 
+    /**
+     * Метод возвращает вид обрабтываемого запроса
+     * @param jp - {@link ProceedingJoinPoint}
+     * @return Вид запроса
+     */
     private String GetRequestType(ProceedingJoinPoint jp) {
         MethodSignature methodSignature = (MethodSignature)jp.getSignature();
         Method method = methodSignature.getMethod();
@@ -81,16 +97,4 @@ public class AuditAspect {
 
         return "N/A";
     }
-
-/*    private String getParameters(ProceedingJoinPoint jp) {
-        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
-        Method method = methodSignature.getMethod();
-        Parameter[] parameters = method.getParameters();
-        String result = "";
-
-        for(int i = 0; i < parameters.length; i++) {
-            result += parameters[i].toString() + "\n";
-        }
-        return result;
-    }*/
 }

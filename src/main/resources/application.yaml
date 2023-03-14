@@ -1,0 +1,17 @@
+database_login: ${DATABASE_USERNAME:postgres}
+database_password: ${DATABASE_PASSWORD:postgres}
+debug_mode: ${DEBUG_MODE:false}
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        connection:
+          driver_class: org.postgresql.Driver
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${database_login}
+    password: ${database_password}

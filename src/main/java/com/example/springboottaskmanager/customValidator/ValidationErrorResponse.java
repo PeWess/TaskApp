@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-//Класс, хранящий список нарушений валидации
+/**
+ * Запись, хранящая все ошибки валидации.
+ */
 @Getter
 @RequiredArgsConstructor
 public class ValidationErrorResponse {

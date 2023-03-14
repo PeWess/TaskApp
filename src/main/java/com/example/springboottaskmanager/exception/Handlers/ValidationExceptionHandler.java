@@ -13,18 +13,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Класс, обрабатывающий {@link ConstraintViolationException} и {@link MethodArgumentNotValidException}.
+ */
 @RestControllerAdvice
 public class ValidationExceptionHandler {
 
-    //Обработчик исключений валидации, возврщающий названия полей с описанием допущенных в них ошибок.
-    @ResponseBody
+    /**
+     * Метод, обрабатывающий все ошибки валидации и возврщающий заполненный {@link ValidationErrorResponse}.
+     */
+/*    @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse onConstraintValidationException(ConstraintViolationException e) {
         final List<Violation> violations = e.getConstraintViolations().stream()
                 .map(violation -> new Violation(violation.getPropertyPath().toString(), violation.getMessage())).collect(Collectors.toList());
         return new ValidationErrorResponse(violations);
-    }
+    }*/
 
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)

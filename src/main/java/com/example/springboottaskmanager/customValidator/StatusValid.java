@@ -1,3 +1,4 @@
+/*
 package com.example.springboottaskmanager.customValidator;
 
 import jakarta.validation.Constraint;
@@ -19,3 +20,4 @@ public @interface StatusValid {
     Class<?>[] groups() default { };
     Class<? extends Payload>[] payload() default { };
 }
+*/

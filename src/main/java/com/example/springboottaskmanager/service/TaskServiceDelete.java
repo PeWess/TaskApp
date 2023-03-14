@@ -2,16 +2,17 @@ package com.example.springboottaskmanager.service;
 
 import com.example.springboottaskmanager.exception.Body.NotFoundException;
 import com.example.springboottaskmanager.repository.TaskRepo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskServiceDelete {
-    @Autowired
-    TaskRepo taskRepo;
-
-    //Метод, удаляющий запись в базе данных, если запись с указанным ID существует, иначе выбрасывает NotFoundException
-    public void deleteTask(Long id) throws NotFoundException {
+    /**
+     * Метод, удаляющий запись из базы данных.
+     * @param id - идентификатор удаляемой задачи.
+     * @param taskRepo - база задач.
+     * @throws NotFoundException - если записи с указанным id не существует, выбрасывает исключение.
+     */
+    public void DeleteTask(Long id, TaskRepo taskRepo) throws NotFoundException {
         if (taskRepo.findById(id).isPresent())
             taskRepo.deleteById(id);
         else

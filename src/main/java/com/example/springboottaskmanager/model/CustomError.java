@@ -8,11 +8,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
+/**
+ * Модель данных ошибки.
+ * {@param message} - сообщние ошибки.
+ * {@param description} - описание ошибки.
+ * {@param stackTrace} - stacktrace ошибки.
+ */
 @Getter
 public class CustomError {
-    private String message;
-    private String description;
-    private String stackTrace;
+    private final String message;
+    private final String description;
+    private final String stackTrace;
 
     //
     public CustomError (AppException exception, HttpStatus status) {

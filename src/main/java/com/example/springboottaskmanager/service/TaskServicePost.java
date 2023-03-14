@@ -10,11 +10,13 @@ import org.springframework.validation.annotation.Validated;
 @Service
 @Validated
 public class TaskServicePost {
-    @Autowired
-    TaskRepo taskRepo;
-
-    //Метод, сохраняющий валидную запись, иначе выбрасывает ConstraintViolationException
-    public Task createTask(@Valid Task task) {
+    /**
+     * Метод, сохраняющий валидную задачу.
+     * @param task - сохраняемая задача.
+     * @param taskRepo - база задач.
+     * @return - сохраненную задачу.
+     */
+    public Task CreateTask(Task task, TaskRepo taskRepo) {
         taskRepo.save(task);
         return task;
     }

@@ -3,43 +3,58 @@ package com.example.springboottaskmanager.exception.Handlers;
 import com.example.springboottaskmanager.exception.Body.NotFoundException;
 import com.example.springboottaskmanager.exception.Body.UnknownException;
 import com.example.springboottaskmanager.model.CustomError;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+
+/**
+ * Класс, обрабатывающий {@link NotFoundException} и {@link UnknownException}.
+ */
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
-    private boolean debugMode = Boolean.parseBoolean(System.getenv("DEBUG_MODE"));
+    @Value("${debug_mode}")
+    private boolean debugMode;
 
-    //Обработчик исключения ненайденной задачи в базе даных. Возвращает тело ошибки с HTTP статусом, сообщением и описанием ошибки.
-    //Переменная среды DEBUG_MODE определяет, будет ли выводиться stacktrace ошибки.
+    /**
+     * Обработчик {@link NotFoundException}. Возвращает тело ошибки с HTTP статусом, сообщением и описанием ошибки.
+     */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> notFoundException(NotFoundException exception) {
         CustomError error = new CustomError(exception, HttpStatus.NOT_FOUND);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(CreateErrorString(error));
+    }
+
+    /**
+     * Обработчик {@link UnknownException}. Возвращает тело ошибки с HTTP статусом, сообщением и описанием ошибки.
+     */
+    public ResponseEntity<String> unknownException(UnknownException exception) {
+        CustomError error = new CustomError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(CreateErrorString(error));
+    }
+
+    /**
+     * Метод, достающий из модели {@link CustomError} всю информацию в виде строки.
+     * @param error - обрабатываемая ошибка.
+     * @return - строка с сообщением и описанием ошибки. При DEBUG_MODE true также выводит StackTrace.
+     */
+    public String CreateErrorString(CustomError error) {
         if(debugMode) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Status: " + HttpStatus.NOT_FOUND + "\n" +
+            return ("Status: " + HttpStatus.NOT_FOUND + "\n" +
                             "Message: " + error.getMessage() + "\n" +
                             "Description: " + error.getDescription() + "\n" +
                             "StackTrace: " + error.getStackTrace());
         }
         else
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Status: " + HttpStatus.NOT_FOUND+ "\n" +
+            return ("Status: " + HttpStatus.NOT_FOUND+ "\n" +
                             "Message: " + error.getMessage() + "\n" +
                             "Description: " + error.getDescription());
-    }
-
-    //Обработчки всех исключений, не считая NotFoundException и исключений валидации. Возвращает HTTP статус 500.
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomError> unknownException(UnknownException exception) {
-        CustomError error = new CustomError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(error);
     }
 }
