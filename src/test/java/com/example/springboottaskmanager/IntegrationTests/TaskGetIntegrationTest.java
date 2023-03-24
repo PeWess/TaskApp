@@ -1,31 +1,41 @@
-/*
 package com.example.springboottaskmanager.IntegrationTests;
 
-import com.example.springboottaskmanager.SpringBootTaskManagerApplication;
-import com.example.springboottaskmanager.TestData.TestData;
+import com.example.springboottaskmanager.TestData.TestTaskData;
+import com.example.springboottaskmanager.ViewModel.TaskViewModel;
+import com.example.springboottaskmanager.mapper.TaskMapper;
 import com.example.springboottaskmanager.repository.AuditRepo;
 import com.example.springboottaskmanager.repository.TaskRepo;
+import com.example.springboottaskmanager.security.authConfig.JwtService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 //Тесты на обработку GET запросов приложением
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.liquibase.enabled=false")
-@ContextConfiguration(classes = {SpringBootTaskManagerApplication.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@AutoConfigureDataJpa
 @Testcontainers
 public class TaskGetIntegrationTest {
     @Container
@@ -44,103 +54,86 @@ public class TaskGetIntegrationTest {
     @Autowired
     MockMvc mockMvc;
     @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
     TaskRepo taskRepo;
     @Autowired
     AuditRepo auditRepo;
     @Autowired
-    TestRestTemplate testRestTemplate;
+    JwtService jwtService;
 
     //Очистка тестовых данных перед каждым тестом
+    @Before
+    public void SetUp() {
+        auditRepo.deleteAll();
+        taskRepo.deleteAll();
+        taskRepo.save(TestTaskData.fullWrittenTask);
+    }
+
     @BeforeEach
-    void SetUp() {
-        taskRepo.deleteAll();;
+    public void ClearAudit() {
         auditRepo.deleteAll();
     }
 
-    //Попытка получения записи из базы данных с указанием корректного значения параметра
     @Test
-    public void GetTaskByParamId_success() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
+    @WithMockUser(authorities = {"ADMIN", "USER"})
+    public void GetTaskById_success() throws Exception {
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/tasks/get/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/?id=1", String.class);
+        ResultActions response = mockMvc.perform(mockRequest);
 
-        //Проверяем возвращение HTTP статуса 200 (OK), соответствие сохраненной и полученной записей, количество записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(TestData.fullWrittenTask.toString(), response.getBody());
-        Assertions.assertEquals(1, auditRepo.findAll().size());
-    }
-
-    //Попытка получения записи из базы данных с указанием ID несуществующей записи
-    @Test
-    public void GetTaskByParamNoSuchId_fail() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
-
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/?id=2", String.class);
-
-        //Проверка на возвращение HTTP статуса 404 (NOT_FOUND) и количества записей записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Assertions.assertEquals(1, auditRepo.findAll().size());
-    }
-
-    //Попытка получения записи из базы данных с указанием некорректного названия параметра
-    @Test
-    public void GetTaskByWrongParamId_fail() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
-
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/?taskId=2", String.class);
-
-        //Проверка на возвращение HTTP статуса 500 (INTERNAL_SERVER_ERROR) и количества записей записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assertions.assertEquals(1, auditRepo.findAll().size());
-    }
-
-    //Попытка получения записи из базы данных с указанием некорректного типа данных в параметре
-    @Test
-    public void GetTaskByWrongTypeParamId_fail() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
-
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/?id=sdfdsc", String.class);
-
-        //Проверка на возвращение HTTP статуса 500 (INTERNAL_SERVER_ERROR) и количества записей записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assertions.assertEquals(1, auditRepo.findAll().size());
-    }
-
-    //Попытка получения записи из базы данных с указанием ID существующей записи в адресе запроса
-    @Test
-    public void GetTaskById_success() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
-
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/1", String.class);
-
-        //Проверяем возвращение HTTP статуса 200 (OK)б соответствие сохраненной и полученной записей, количество записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(TestData.fullWrittenTask.toString(), response.getBody());
+        response.andExpect(status().isOk())
+                .andExpect(content().json(TaskMapper.INSTANCE.toViewModel(TestTaskData.fullWrittenTask).toString()));
         Assertions.assertEquals(1, auditRepo.findAll().size());
     }
 
     //Попытка получения записи из базы данных с указанием ID несуществующей записи в адресе запроса
     @Test
+    @WithMockUser(authorities = {"ADMIN", "USER"})
     public void GetTaskByNoSuchId_fail() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
+        taskRepo.save(TestTaskData.fullWrittenTask);
 
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/2", String.class);
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/tasks/get/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
 
-        //Проверка на возвращение HTTP статуса 404 (NOT_FOUND) и количества записей записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        ResultActions response = mockMvc.perform(mockRequest);
+
+        response.andExpect(status().isNotFound());
         Assertions.assertEquals(1, auditRepo.findAll().size());
     }
 
     //Попытка получения записи из базы данных с указанием некорректного типа данных в адресе запроса
     @Test
+    @WithMockUser(authorities = {"ADMIN", "USER"})
     public void GetTaskByWrongTypeId_fail() throws Exception{
-        taskRepo.save(TestData.fullWrittenTask);
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/tasks/get/dfgdsdc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/tasks/sdfdsc", String.class);
+        ResultActions response = mockMvc.perform(mockRequest);
 
-        //Проверка на возвращение HTTP статуса 500 (INTERNAL_SERVER_ERROR) и количества записей записей в Audit, равное количеству вызванных методов
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        response.andExpect(status().isInternalServerError());
+        Assertions.assertEquals(1, auditRepo.findAll().size());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"ADMIN", "USER"})
+    public void GetAllTasks_success() throws Exception{
+        taskRepo.save(TestTaskData.onlyImportantParams);
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.get("/tasks/get/all")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        ResultActions response = mockMvc.perform(mockRequest);
+
+        response.andExpect(status().isOk())
+                .andExpect(content().json(new ArrayList<TaskViewModel>(){{
+                        add(TaskMapper.INSTANCE.toViewModel(TestTaskData.fullWrittenTask));
+                        add(TaskMapper.INSTANCE.toViewModel(TestTaskData.onlyImportantParams));
+                }}.toString()));
         Assertions.assertEquals(1, auditRepo.findAll().size());
     }
 }
-*/

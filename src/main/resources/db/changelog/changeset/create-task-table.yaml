@@ -12,6 +12,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_task
                     nullable: false
               - column:
                   name: task_name
@@ -27,14 +28,18 @@ databaseChangeLog:
                   name: status
                   type: varchar(20)
                   constraints:
-                    nullable: false
-              - column:
-                  name: executor
-                  type: varchar(100)
-                  constraints:
                     nullable: true
               - column:
-                  name: own_by
-                  type: varchar(100)
+                  name: executor_id
+                  type: bigint
                   constraints:
+                    foreignKeyName: fk_worker_executor_id
+                    references: worker(id)
+                    nullable: true
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_worker_owner_id
+                    references: worker(id)
                     nullable: false

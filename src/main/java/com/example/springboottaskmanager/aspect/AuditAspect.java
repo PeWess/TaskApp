@@ -47,16 +47,13 @@ public class AuditAspect {
     public Object CreateAudit(ProceedingJoinPoint jp) throws Throwable{
         Audit audit = new Audit();
         audit.setOperation(GetRequestType(jp));
+        audit.setMethodName(jp.getSignature().getName());
         try {
             return jp.proceed();
         } catch (NotFoundException notFoundException) {
             audit.setStatus(HttpStatus.NOT_FOUND.getReasonPhrase());
             audit.setErrorMessage(notFoundException.getMessage());
             throw notFoundException;
-        } catch (ConstraintViolationException constraintViolationException) {
-            audit.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
-            audit.setErrorMessage(constraintViolationException.getMessage());
-            throw constraintViolationException;
         }catch (MethodArgumentNotValidException methodArgumentNotValidException) {
             audit.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
             audit.setErrorMessage(methodArgumentNotValidException.getMessage());

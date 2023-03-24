@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: fill-user-table
+      author: Sergey Kritskiy
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$12$5M3zwx8uf819grix1nt3Q.Xff5NiWqbIEwLT1Z9xkcRcK1qbQ2Cbi
+              - column:
+                  name: firstname
+                  value: John
+              - column:
+                  name: surname
+                  value: Doe
+              - column:
+                  name: role
+                  value: 1
+              - column:
+                  name: enabled
+                  value: true
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: user
+              - column:
+                  name: password
+                  value: $2a$12$YkZUH4MtxE7pNnqf7bMKJu/bbX8/X3Rk8VeMgGrxTiQuATa.gh8em
+              - column:
+                  name: firstname
+                  value: Jenny
+              - column:
+                  name: surname
+                  value: Doe
+              - column:
+                  name: role
+                  value: 2
+              - column:
+                  name: enabled
+                  value: true

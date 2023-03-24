@@ -13,8 +13,8 @@ import lombok.*;
  */
 @Entity
 @Table(name = "audit")
-@Data
-@AllArgsConstructor
+@Setter
+@Getter
 @NoArgsConstructor
 public class Audit {
     @Id
@@ -22,8 +22,9 @@ public class Audit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*@Nullable
-    private String requestBody;*/
+    @NotNull
+    @Column(name = "method_name")
+    private String methodName;
 
     @NotNull
     @Column(name = "operation")

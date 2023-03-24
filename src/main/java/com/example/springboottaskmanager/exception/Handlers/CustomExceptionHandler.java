@@ -23,7 +23,7 @@ public class CustomExceptionHandler {
      * Обработчик {@link NotFoundException}. Возвращает тело ошибки с HTTP статусом, сообщением и описанием ошибки.
      */
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> notFoundException(NotFoundException exception) {
+    public ResponseEntity<Object> notFoundException(NotFoundException exception) {
         CustomError error = new CustomError(exception, HttpStatus.NOT_FOUND);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -33,7 +33,8 @@ public class CustomExceptionHandler {
     /**
      * Обработчик {@link UnknownException}. Возвращает тело ошибки с HTTP статусом, сообщением и описанием ошибки.
      */
-    public ResponseEntity<String> unknownException(UnknownException exception) {
+    @ExceptionHandler(UnknownException.class)
+    public ResponseEntity<Object> unknownException(UnknownException exception) {
         CustomError error = new CustomError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
