@@ -34,9 +34,9 @@ public class User implements UserDetails {
     @Column(name = "surname")
     @NotNull
     private String surname;
-    @PrimaryKeyJoinColumn(name = "role")
     @Enumerated(EnumType.STRING)
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "role")
     private Role role;
     @Column(name = "enabled")
     private boolean enabled;

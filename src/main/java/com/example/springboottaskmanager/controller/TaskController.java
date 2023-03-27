@@ -5,16 +5,15 @@ import com.example.springboottaskmanager.aspect.Auditable;
 import com.example.springboottaskmanager.exception.Body.UnknownException;
 import com.example.springboottaskmanager.security.securityModels.LoginRequest;
 import com.example.springboottaskmanager.security.securityModels.LoginResponse;
+import com.example.springboottaskmanager.security.securityModels.RegisterRequest;
 import com.example.springboottaskmanager.service.TaskServiceFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 
 
@@ -27,6 +26,12 @@ import java.util.List;
 @RequestMapping("/tasks")
 public class TaskController {
     final TaskServiceFacade taskService;
+
+    @Auditable
+    @PostMapping("/register")
+    public ResponseEntity<LoginResponse> Register(@RequestBody RegisterRequest registerRequest) {
+        return ResponseEntity.ok(taskService.Register(registerRequest));
+    }
 
     @Auditable
     @PostMapping("/login")

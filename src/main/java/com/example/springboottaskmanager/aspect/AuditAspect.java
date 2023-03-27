@@ -2,6 +2,7 @@ package com.example.springboottaskmanager.aspect;
 
 import com.example.springboottaskmanager.exception.Body.NotFoundException;
 import com.example.springboottaskmanager.exception.Body.UnknownException;
+import com.example.springboottaskmanager.exception.Body.UserExitsException;
 import com.example.springboottaskmanager.model.Audit;
 import com.example.springboottaskmanager.repository.AuditRepo;
 import jakarta.validation.ConstraintViolationException;
@@ -58,8 +59,11 @@ public class AuditAspect {
             audit.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
             audit.setErrorMessage(methodArgumentNotValidException.getMessage());
             throw methodArgumentNotValidException;
-        }
-        catch (Exception e) {
+        }catch (UserExitsException userExitsException) {
+            audit.setStatus(HttpStatus.FORBIDDEN.getReasonPhrase());
+            audit.setErrorMessage(userExitsException.getMessage());
+            throw userExitsException;
+        }catch (Exception e) {
             audit.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
             UnknownException unknownException = new UnknownException(e.getMessage());
             audit.setErrorMessage(unknownException.getMessage());

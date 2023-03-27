@@ -22,6 +22,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests()
+                .requestMatchers("/tasks/register").permitAll()
                 .requestMatchers("/tasks/login").permitAll()
                 .requestMatchers("/tasks/post").hasAuthority("ADMIN")
                 .requestMatchers("/tasks/get/**").hasAnyAuthority("ADMIN", "USER")

@@ -2,6 +2,7 @@ package com.example.springboottaskmanager.exception.Handlers;
 
 import com.example.springboottaskmanager.exception.Body.NotFoundException;
 import com.example.springboottaskmanager.exception.Body.UnknownException;
+import com.example.springboottaskmanager.exception.Body.UserExitsException;
 import com.example.springboottaskmanager.model.CustomError;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class CustomExceptionHandler {
         CustomError error = new CustomError(exception, HttpStatus.NOT_FOUND);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(CreateErrorString(error));
+                .body(CreateErrorString(error, HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -38,7 +39,15 @@ public class CustomExceptionHandler {
         CustomError error = new CustomError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CreateErrorString(error));
+                .body(CreateErrorString(error, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @ExceptionHandler(UserExitsException.class)
+    public ResponseEntity<Object> userExistsException(UserExitsException exception) {
+        CustomError error = new CustomError(exception, HttpStatus.FORBIDDEN);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(CreateErrorString(error, HttpStatus.FORBIDDEN));
     }
 
     /**
@@ -46,15 +55,15 @@ public class CustomExceptionHandler {
      * @param error - обрабатываемая ошибка.
      * @return - строка с сообщением и описанием ошибки. При DEBUG_MODE true также выводит StackTrace.
      */
-    public String CreateErrorString(CustomError error) {
+    public String CreateErrorString(CustomError error, HttpStatus status) {
         if(debugMode) {
-            return ("Status: " + HttpStatus.NOT_FOUND + "\n" +
+            return ("Status: " + status + "\n" +
                             "Message: " + error.getMessage() + "\n" +
                             "Description: " + error.getDescription() + "\n" +
                             "StackTrace: " + error.getStackTrace());
         }
         else
-            return ("Status: " + HttpStatus.NOT_FOUND+ "\n" +
+            return ("Status: " + status + "\n" +
                             "Message: " + error.getMessage() + "\n" +
                             "Description: " + error.getDescription());
     }

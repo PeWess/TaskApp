@@ -29,7 +29,8 @@ public class CustomError {
         message = exception.getMessage();
         description = Map.of(HttpStatus.NOT_FOUND, "Данной записи нет в базе данных",
                 HttpStatus.BAD_REQUEST, "Запрос не соответствует требованиям",
-                HttpStatus.INTERNAL_SERVER_ERROR, "Произошла непредвиденная ошибка").get(status);
+                HttpStatus.INTERNAL_SERVER_ERROR, "Произошла непредвиденная ошибка",
+                HttpStatus.FORBIDDEN, "Пользователь с данным ником уже существует").get(status);
         stackTrace = stacktrace;
     }
 }

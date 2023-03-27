@@ -8,6 +8,7 @@ import com.example.springboottaskmanager.repository.TaskRepo;
 import com.example.springboottaskmanager.repository.UserRepo;
 import com.example.springboottaskmanager.security.securityModels.LoginRequest;
 import com.example.springboottaskmanager.security.securityModels.LoginResponse;
+import com.example.springboottaskmanager.security.securityModels.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,10 @@ public class TaskServiceFacade {
     final private TaskServiceGet getService;
     final private TaskServiceDelete deleteService;
     final private TaskServiceLogin loginService;
+
+    public LoginResponse Register(RegisterRequest registerRequest) {
+        return loginService.Register(registerRequest, userRepo);
+    }
 
     public LoginResponse Login(LoginRequest loginRequest) {
         return loginService.Login(loginRequest, userRepo);
