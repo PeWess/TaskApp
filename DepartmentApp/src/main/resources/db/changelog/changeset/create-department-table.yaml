@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-department-table
+      author: Sergey Kritskiy
+      changes:
+        - createTable:
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_dep
+                    nullable: false
+              - column:
+                  name: department_name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false

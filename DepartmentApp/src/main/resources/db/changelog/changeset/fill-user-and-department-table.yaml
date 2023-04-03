@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: fill-user-and-department-table
+      author: Sergey Kritskiy
+      changes:
+        - insert:
+            tableName: user_and_department
+            columns:
+              - column:
+                  name: department_id
+                  value: 1
+              - column:
+                  name: user_id
+                  value: 1
+        - insert:
+            tableName: user_and_department
+            columns:
+              - column:
+                  name: department_id
+                  value: 2
+              - column:
+                  name: user_id
+                  value: 2

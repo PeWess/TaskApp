@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: fill-role-table
+      author: Sergey Kritskiy
+      changes:
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: role
+                  value: ADMIN
+        - insert:
+            tableName: role
+            columns:
+              - column:
+                  name: role
+                  value: USER

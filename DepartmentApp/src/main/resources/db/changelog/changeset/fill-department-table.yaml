@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: fill-department-table
+      author: Sergey Kritskiy
+      changes:
+        - insert:
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: department_name
+                  value: Administration
+        - insert:
+            tableName: department
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: department_name
+                  value: Web_services

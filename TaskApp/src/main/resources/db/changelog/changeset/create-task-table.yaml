@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-task-table
+      author: Sergey Kritskiy
+      changes:
+        - createTable:
+            tableName: task
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_task
+                    nullable: false
+              - column:
+                  name: task_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: executor_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_worker_executor_id
+                    references: worker(id)
+                    nullable: true
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_worker_owner_id
+                    references: worker(id)
+                    nullable: false

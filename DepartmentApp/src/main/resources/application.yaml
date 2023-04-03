@@ -1,0 +1,24 @@
+database_login: ${DATABASE_USERNAME:postgres}
+database_password: ${DATABASE_PASSWORD:postgres}
+database_url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/userServices}
+
+spring:
+  datasource:
+    url: ${database_url}
+    username: ${database_login}
+    password: ${database_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+
+server:
+  port: 5433

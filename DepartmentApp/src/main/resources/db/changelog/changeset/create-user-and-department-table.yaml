@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-and-department-table
+      author: Sergey Kritskiy
+      changes:
+        - createTable:
+            tableName: user_and_department
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: department_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: pk_department
+                    references: department(id)
+                    nullable: false

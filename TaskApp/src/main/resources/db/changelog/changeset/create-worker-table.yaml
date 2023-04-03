@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-worker-table
+      author: Sergey Kritskiy
+      changes:
+        - createTable:
+            tableName: worker
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: worker_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: worker_surname
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
